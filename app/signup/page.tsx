@@ -17,14 +17,14 @@ import { Label } from "@/components/ui/label";
 export default function SignIn() {
   const [detail, setDetail] = React.useState<string>("");
 
-  const handleLogin = async function (event: FormEvent<HTMLFormElement>) {
+  const handleSignup = async function (event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const formData = new FormData(event.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
 
     try {
-      const request = await fetch("/api/signin", {
+      const request = await fetch("/api/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -45,10 +45,12 @@ export default function SignIn() {
       }
 
       if (responseData.status === "OK") {
-        toast.success("Successfully logged in!");
+        toast.success("User has been created, you can login now!");
 
         if (global.window !== undefined) {
-          global.window.location.pathname = "/";
+          setTimeout(function () {
+            global.window.location.pathname = "/signin";
+          }, 1000)
         }
       }
     } catch (error) {
@@ -57,51 +59,35 @@ export default function SignIn() {
   };
 
   return (
-    <div
-      className={"w-screen h-screen overflow-hidden grid place-items-center"}
-    >
+    <div className={"w-screen h-screen overflow-hidden grid place-items-center"}>
       <Card className="max-w-sm mx-8">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">Sign Up</CardTitle>
           <CardDescription>
-            Enter your username below to login to your account
+            Enter your username below to create to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="grid gap-4">
+          <form onSubmit={handleSignup} className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                name={"username"}
-                type="text"
-                placeholder="admin"
-                required
-              />
-              {detail ? (
-                <span className={"text-rose-500 text-xs"}>{detail}</span>
-              ) : null}
+              <Input id="username" name={"username"} type="text" placeholder="admin" required />
+              {detail ? (<span className={"text-rose-500"}>{detail}</span>) : null}
             </div>
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label htmlFor="password">Password</Label>
               </div>
-              <Input
-                id="password"
-                name={"password"}
-                type="password"
-                placeholder={"********"}
-                required
-              />
+              <Input id="password" name={"password"} type="password" placeholder={"********"} required />
             </div>
             <Button type="submit" className="w-full">
-              Login
+              Create Account
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="underline">
-              Sign up
+            Already have an account!{" "}
+            <Link href="/signin" className="underline">
+              Login Now
             </Link>
           </div>
         </CardContent>

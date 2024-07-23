@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
     const request = await fetch(process.env.PDFQA_BACKEND! + "/token/pair", {
       method: "POST",
       headers: {
+        "Accept": "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
