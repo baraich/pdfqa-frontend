@@ -22,12 +22,20 @@ export default function LandingPage() {
           </Link>
         </LoggedOut>
         <LoggedIn>
-          <a href={"/api/logout"}>
-            <Button className={"flex gap-2"}>
-              <span>Logout</span>
-              <LogOut className={"size-4"} />
-            </Button>
-          </a>
+          <div className={"flex gap-2"}>
+            <Link href={"/chats"}>
+              <Button className={"flex gap-2"}>
+                <span>Chats</span>
+                <LogIn className={"size-4"} />
+              </Button>
+            </Link>
+            <a href={"/api/logout"}>
+              <Button className={"flex gap-2 bg-rose-500/60 hover:bg-rose-500"}>
+                <span>Logout</span>
+                <LogOut className={"size-4"} />
+              </Button>
+            </a>
+          </div>
         </LoggedIn>
       </div>
 

@@ -13,7 +13,7 @@ type SessionProviderProps = {
   auth: SessionContextProps
 }
 
-const SessionContext = createContext<SessionContextProps>({
+export const SessionContext = createContext<SessionContextProps>({
   user: null
 });
 

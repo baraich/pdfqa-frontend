@@ -3,10 +3,12 @@
 import { useDropzone } from "react-dropzone";
 import { FileUp } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import axios from "axios";
+import {useRouter} from "next/navigation";
 
 export default function FileUpload() {
+  const router = useRouter();
+
   const { getRootProps, getInputProps } = useDropzone({
     maxFiles: 1,
     onDrop: async (acceptedFiles) => {
@@ -41,7 +43,21 @@ export default function FileUpload() {
           "Content-Type": "multipart/form-data",
         },
         onUploadProgress: (event) => {
-          console.log(event);
+          toast.info(`Uploading (${event.loaded * 100 / event.total!}%)`)
+        },
+      });
+
+      axios.post("/api/create-chat", {
+        pdfName: file.name,
+        fileKey: signedUrlResponse.fileKey,
+        pdfUrl: new URL(signedUrlResponse.signedUrl).origin + "/" + signedUrlResponse.fileKey
+      }).then((response) => {
+        if (response.data.status === "OK") {
+          toast.info("File uploaded successfully!");
+
+          router.push("/chats/" + response.data.chatId);
+        } else {
+          toast.error("An error has occurred, please try again later!");
         }
       });
     },
