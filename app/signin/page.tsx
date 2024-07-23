@@ -1,11 +1,11 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
-import { FormEvent, useState } from "react";
+import React, { FormEvent } from "react";
 import {toast} from "sonner";
 
-export default function signin() {
-  const [detail, setDetail] = useState<string>("");
+export default function SignIn() {
+  const [detail, setDetail] = React.useState<string>("");
 
   const handleLogin = async function (event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -68,7 +68,7 @@ export default function signin() {
             placeholder={"Username"}
           />
 
-          {detail ? <p className={"text-xs text-red-500"}>{detail}</p> : null}
+          {detail !== "" ? <p className={"text-xs text-red-500"}>{detail}</p> : null}
 
           <input
             className={

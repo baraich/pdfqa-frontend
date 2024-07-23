@@ -5,14 +5,11 @@ import { cookies } from "next/headers";
 import axios from "axios";
 import Link from "next/link";
 
-type ChatWrapperProps = {
+interface ChatWrapperProps {
   children: ReactNode;
-  searchParams: {
-    chatId: string;
-  };
-};
+}
 
-export default async function ChatWrapper(props: ChatWrapperProps) {
+export default async function ChatWrapperLayout(props: ChatWrapperProps) {
   const { user } = await getAuth();
 
   if (user === null) {
