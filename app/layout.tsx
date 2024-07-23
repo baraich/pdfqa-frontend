@@ -19,7 +19,7 @@ export default async function RootLayout(props: RootLayoutProps) {
     <SessionProvider auth={auth}>
       <html lang={"en"}>
         <body className={fontFamily.className}>
-          <Toaster />
+          <Toaster className={fontFamily.className} />
           {props.children}
         </body>
       </html>

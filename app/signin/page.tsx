@@ -54,14 +54,14 @@ export default function signin() {
     >
       <div
         className={
-          "bg-white max-w-xl m-4 p-4 rounded-md shadow scale-125 flex flex-col gap-2"
+          "bg-white max-w-xl m-4 p-4 rounded-md shadow flex flex-col gap-2"
         }
       >
-        <h2>SignUp</h2>
+        <h2>Login</h2>
         <form onSubmit={handleLogin} className={"flex flex-col gap-2"}>
           <input
             className={
-              "p-3 focus:ring-4 outline-none focus:ring-indigo-100 rounded border"
+              "p-2 px-3 focus:ring-4 outline-none focus:ring-indigo-100 rounded border"
             }
             type="text"
             name={"username"}
@@ -72,7 +72,7 @@ export default function signin() {
 
           <input
             className={
-              "p-3 focus:ring-4 outline-none focus:ring-indigo-100 rounded border"
+              "p-2 px-3 focus:ring-4 outline-none focus:ring-indigo-100 rounded border"
             }
             type="password"
             name={"password"}
