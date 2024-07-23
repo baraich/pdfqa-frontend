@@ -1,7 +1,7 @@
 "use client"
 import {createContext, ReactNode, useContext, useState} from "react";
 
-type SessionContextProps = {
+export type SessionContextProps = {
   user: {
     id: number;
     email: string;
@@ -10,18 +10,16 @@ type SessionContextProps = {
 
 type SessionProviderProps = {
   children: ReactNode
+  auth: SessionContextProps
 }
 
 const SessionContext = createContext<SessionContextProps>({
   user: null
 });
 
-export default function SessionProvider({children}: SessionProviderProps) {
-  const [user, setUser] =
-    useState<SessionContextProps["user"]>(null);
-
+export default function SessionProvider({children, auth}: SessionProviderProps) {
   return (
-    <SessionContext.Provider value={{user}}>
+    <SessionContext.Provider value={auth}>
       {children}
     </SessionContext.Provider>
   )
