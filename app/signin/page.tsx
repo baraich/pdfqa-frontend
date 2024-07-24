@@ -44,7 +44,9 @@ export default function SignIn() {
       }
 
       if (responseData.status === "ERROR") {
-        toast.error("An error has occurred, please try again later!");
+        toast.warning("An error has occurred, please try again later!", {
+          richColors: true
+        });
       }
 
       if (responseData.status === "OK") {

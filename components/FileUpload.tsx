@@ -9,13 +9,52 @@ import {useRouter} from "next/navigation";
 export default function FileUpload() {
   const router = useRouter();
 
+  async function isPDF(file: File): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onloadend = (evt) => {
+        if (evt.target?.readyState === FileReader.DONE) {
+          const arr = new Uint8Array(evt.target.result as ArrayBuffer).subarray(0, 4);
+          let header = "";
+          arr.forEach((byte) => {
+            header += byte.toString(16);
+          });
+
+          // Check for PDF magic number
+          if (header === "25504446") {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        }
+      };
+
+      reader.onerror = () => {
+        reject(new Error('Error reading file'));
+      };
+
+      // Read first 4 bytes
+      const blob = file.slice(0, 4);
+      reader.readAsArrayBuffer(blob);
+    });
+  }
+
   const { getRootProps, getInputProps } = useDropzone({
     maxFiles: 1,
     onDrop: async (acceptedFiles) => {
       const file = acceptedFiles[0];
 
+      if (!(await isPDF(file))) {
+        return toast.warning("Only PDF files are supported!", {
+          richColors: true
+        });
+      }
+
       if (file.size > 10 * 1024 * 1024) {
-        return toast.error("Cannot upload a file greater than 10MB!");
+        return toast.error("Cannot upload a file greater than 10MB!", {
+          richColors: true
+        });
       }
 
       toast.info("Getting the signed URL to upload the files.");
@@ -57,7 +96,9 @@ export default function FileUpload() {
 
           router.push("/chats/" + response.data.chatId);
         } else {
-          toast.error("An error has occurred, please try again later!");
+          toast.warning("An error has occurred, please try again later!", {
+            richColors: true
+          });
         }
       });
     },

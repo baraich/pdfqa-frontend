@@ -44,7 +44,9 @@ export default function SignIn() {
       }
 
       if (responseData.status === "ERROR") {
-        toast.error("An error has occurred, please try again later!");
+        toast.warning("An error has occurred, please try again later!", {
+          richColors: true
+        });
       }
 
       if (responseData.status === "OK") {
@@ -102,7 +104,7 @@ export default function SignIn() {
             </div>
             <Button type="submit" className="w-full">
               {loading ? (
-                <Loader2 className={"animate-in text-white size-4"} />
+                <Loader2 className={"animate-spin text-white size-4"} />
               ) : (
                 "Create Account"
               )}

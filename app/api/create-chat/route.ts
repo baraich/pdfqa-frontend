@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import getAuth from "@/hooks/server/getAuth";
+import {revalidateTag} from "next/cache";
 
 export async function POST(request: NextRequest) {
   const { user } = await getAuth();
@@ -43,6 +44,8 @@ export async function POST(request: NextRequest) {
   };
 
   if ("id" in createChatResponse) {
+    revalidateTag("fetch-user-chats");
+
     return NextResponse.json(
       {
         status: "OK",

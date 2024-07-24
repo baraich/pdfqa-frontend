@@ -3,6 +3,7 @@ import { DM_Sans } from "next/font/google";
 import SessionProvider from "@/providers/SessionProvider";
 import { Toaster } from "sonner";
 import getAuth from "@/hooks/server/getAuth";
+import NextTopLoader from "nextjs-toploader";
 
 type RootLayoutProps = {
   children: React.ReactNode;
@@ -19,6 +20,7 @@ export default async function RootLayout(props: RootLayoutProps) {
     <SessionProvider auth={auth}>
       <html lang={"en"}>
         <body className={fontFamily.className}>
+          <NextTopLoader color={"#818cf8"} />
           <Toaster className={fontFamily.className} />
           {props.children}
         </body>

@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import axios from "axios";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { MessageSquarePlus } from "lucide-react";
 
 interface ChatWrapperProps {
   children: ReactNode;
@@ -17,27 +19,39 @@ export default async function ChatWrapperLayout(props: ChatWrapperProps) {
   }
 
   const authToken = cookies().get("auth-token")?.value!;
-  const chats = (
-    await axios.get(process.env.PDFQA_BACKEND + "/chats", {
+  const chats = (await (
+    await fetch(process.env.PDFQA_BACKEND + "/chats", {
       headers: {
         Authorization: `Bearer ${authToken}`,
       },
+      next: {
+        tags: ["fetch-user-chats"],
+      },
+      cache: "force-cache"
     })
-  ).data as { id: number; pdf_url: string; pdf_name: string }[];
+  ).json()) as { id: number; pdf_url: string; pdf_name: string }[];
 
   return (
     <div
       className={"grid grid-cols-[300px_1fr] w-screen h-screen overflow-hidden"}
     >
       <div className={"bg-stone-800 p-4 pt-8"}>
-        <h2
-          className={
-            "text-white font-bold pb-2 text-2xl border-b-2 border-dashed"
-          }
-          style={{ borderColor: "#FFFFFF50" }}
-        >
-          Chats
-        </h2>
+        <div className={"w-full flex items-center justify-between"}>
+          <h2
+            className={
+              "text-white font-bold pb-2 text-2xl border-b-2 border-dashed"
+            }
+            style={{ borderColor: "#FFFFFF50" }}
+          >
+            Chats
+          </h2>
+
+          <Link href={"/"}>
+            <Button className={"bg-orange-300 hover:bg-orange-200"}>
+              <MessageSquarePlus className={"size-4 text-black"} />
+            </Button>
+          </Link>
+        </div>
 
         <div className={"h-full py-8 flex gap-2 flex-col w-full"}>
           {chats.map((chat) => (
