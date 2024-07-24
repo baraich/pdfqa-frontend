@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
     );
 
     const response = await createUserRequest.json();
-    console.log(response)
 
     return NextResponse.json(
       {
