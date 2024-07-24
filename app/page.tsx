@@ -2,7 +2,6 @@ import { LoggedIn, LoggedOut } from "@/providers/SessionProvider";
 import { Button } from "@/components/ui/button";
 import { LogIn, LogOut } from "lucide-react";
 import Link from "next/link";
-import { useDropzone } from "react-dropzone";
 import FileUpload from "@/components/FileUpload";
 
 export default function LandingPage() {
