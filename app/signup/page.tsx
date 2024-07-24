@@ -101,17 +101,17 @@ export default function SignIn() {
               />
             </div>
             <Button type="submit" className="w-full">
-              Create Account
+              {loading ? (
+                <Loader2 className={"animate-in text-white size-4"} />
+              ) : (
+                "Create Account"
+              )}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
             Already have an account!{" "}
             <Link href="/signin" className="underline">
-              {loading ? (
-                <Loader2 className={"animate-in text-white size-4"} />
-              ) : (
-                "Login Now"
-              )}
+              Login Now
             </Link>
           </div>
         </CardContent>
