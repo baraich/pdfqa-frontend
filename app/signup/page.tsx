@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight } from "lucide-react";
-import React, { FormEvent } from "react";
+import { ArrowUpRight, Loader2 } from "lucide-react";
+import React, { FormEvent, useState } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import {
@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function SignIn() {
+  const [loading, setLoading] = useState(false);
   const [detail, setDetail] = React.useState<string>("");
 
   const handleSignup = async function (event: FormEvent<HTMLFormElement>) {
@@ -24,6 +25,7 @@ export default function SignIn() {
     const payload = Object.fromEntries(formData);
 
     try {
+      setLoading(true);
       const request = await fetch("/api/signup", {
         method: "POST",
         headers: {
@@ -35,6 +37,7 @@ export default function SignIn() {
       const responseData = (await request.json()) as
         | { status: "OK" | "ERROR" }
         | { detail: string };
+      setLoading(false);
 
       if ("detail" in responseData) {
         return setDetail(responseData?.detail as string);
@@ -50,16 +53,19 @@ export default function SignIn() {
         if (global.window !== undefined) {
           setTimeout(function () {
             global.window.location.pathname = "/signin";
-          }, 1000)
+          }, 1000);
         }
       }
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
   };
 
   return (
-    <div className={"w-screen h-screen overflow-hidden grid place-items-center"}>
+    <div
+      className={"w-screen h-screen overflow-hidden grid place-items-center"}
+    >
       <Card className="max-w-sm mx-8">
         <CardHeader>
           <CardTitle className="text-2xl">Sign Up</CardTitle>
@@ -71,14 +77,28 @@ export default function SignIn() {
           <form onSubmit={handleSignup} className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="username">Username</Label>
-              <Input id="username" name={"username"} type="text" placeholder="admin" required />
-              {detail ? (<span className={"text-rose-500"}>{detail}</span>) : null}
+              <Input
+                id="username"
+                name={"username"}
+                type="text"
+                placeholder="admin"
+                required
+              />
+              {detail ? (
+                <span className={"text-rose-500"}>{detail}</span>
+              ) : null}
             </div>
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label htmlFor="password">Password</Label>
               </div>
-              <Input id="password" name={"password"} type="password" placeholder={"********"} required />
+              <Input
+                id="password"
+                name={"password"}
+                type="password"
+                placeholder={"********"}
+                required
+              />
             </div>
             <Button type="submit" className="w-full">
               Create Account
@@ -87,7 +107,11 @@ export default function SignIn() {
           <div className="mt-4 text-center text-sm">
             Already have an account!{" "}
             <Link href="/signin" className="underline">
-              Login Now
+              {loading ? (
+                <Loader2 className={"animate-in text-white size-4"} />
+              ) : (
+                "Login Now"
+              )}
             </Link>
           </div>
         </CardContent>

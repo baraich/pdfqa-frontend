@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight } from "lucide-react";
-import React, { FormEvent } from "react";
+import { ArrowUpRight, Loader2 } from "lucide-react";
+import React, { FormEvent, useState } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import {
@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function SignIn() {
+  const [loading, setLoading] = useState(false);
   const [detail, setDetail] = React.useState<string>("");
 
   const handleLogin = async function (event: FormEvent<HTMLFormElement>) {
@@ -24,6 +25,7 @@ export default function SignIn() {
     const payload = Object.fromEntries(formData);
 
     try {
+      setLoading(true);
       const request = await fetch("/api/signin", {
         method: "POST",
         headers: {
@@ -35,6 +37,7 @@ export default function SignIn() {
       const responseData = (await request.json()) as
         | { status: "OK" | "ERROR" }
         | { detail: string };
+      setLoading(false);
 
       if ("detail" in responseData) {
         return setDetail(responseData?.detail as string);
@@ -52,6 +55,7 @@ export default function SignIn() {
         }
       }
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
   };
@@ -95,7 +99,11 @@ export default function SignIn() {
               />
             </div>
             <Button type="submit" className="w-full">
-              Login
+              {loading ? (
+                <Loader2 className={"animate-spin text-white size-4"} />
+              ) : (
+                "Login"
+              )}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
