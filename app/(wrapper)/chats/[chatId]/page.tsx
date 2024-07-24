@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import PDFViewer from "@/components/PDFViewer";
+import Chat from "@/components/Chat";
 
 type ChatProps = {
   params: {
@@ -26,12 +27,12 @@ export default async function ChatPage(props: ChatProps) {
 
   return (
     <div
-      className={"w-screen h-screen overflow-hidden grid grid-cols-[1fr_1fr]"}
+      className={"w-full h-screen overflow-hidden grid grid-cols-[3fr_2fr]"}
     >
       <div className={"overflow-hidden py-8 bg-white"}>
         <PDFViewer fileUrl={chat.pdf_url} />
       </div>
-      <div>2</div>
+      <Chat chatId={props.params.chatId} />
     </div>
   );
 }
