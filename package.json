@@ -14,9 +14,11 @@
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@react-pdf-viewer/core": "3.12.0",
+    "@types/uuid": "^10.0.0",
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "jsonrepair": "^3.8.0",
     "lucide-react": "^0.414.0",
     "next": "14.2.5",
     "nextjs-toploader": "^1.6.12",
@@ -27,7 +29,8 @@
     "react-dropzone": "^14.2.3",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.4.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/node": "^20",
