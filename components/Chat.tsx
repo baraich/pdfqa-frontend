@@ -37,6 +37,13 @@ export default function Chat(props: ChatProps) {
         },
       ]);
 
+      if (messagesContainerRef.current != null) {
+        messagesContainerRef.current.scrollTo({
+          top: messagesContainerRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+
       const request = await fetch("/api/message", {
         method: "POST",
         cache: "no-cache",
@@ -75,6 +82,7 @@ export default function Chat(props: ChatProps) {
           if (messagesContainerRef.current != null) {
             messagesContainerRef.current.scrollTo({
               top: messagesContainerRef.current.scrollHeight,
+              behavior: "smooth",
             });
           }
 
@@ -83,20 +91,20 @@ export default function Chat(props: ChatProps) {
           if (messagesContainerRef.current != null) {
             messagesContainerRef.current.scrollTo({
               top: messagesContainerRef.current.scrollHeight,
+              behavior: "smooth",
             });
           }
+
+          const currentMessageContent = messages.find(
+            (message) => message.id === messageId,
+          );
+          const nextMessageContent =
+            (currentMessageContent || "") + decode.decode(value);
 
           setMessages((messages) =>
             messages.map((message) => {
               if (message.id === messageId) {
-                const rawMessage = `{"status": "OK", "completion": "${message.content}${decode.decode(value)}`;
-
-                const fixed = JSON.parse(jsonrepair(rawMessage)) as {
-                  status: "OK";
-                  completion: string;
-                };
-
-                message.content = fixed.completion;
+                message.content = nextMessageContent;
               }
 
               return message;

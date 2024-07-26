@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
-import { ReadableStream, WritableStream } from "node:stream/web";
+import { ReadableStream } from "node:stream/web";
 
 export async function POST(request: NextRequest) {
   const payload = (await request.json()) as {
@@ -9,15 +9,15 @@ export async function POST(request: NextRequest) {
   };
 
   const formData = new FormData();
+  formData.append("chat_id", payload.chatId);
   formData.append("message", payload.message);
 
   const authToken = cookies().get("auth-token")?.value!;
   const chatCompletionRequest = await fetch(
-    process.env.PDFQA_BACKEND + `/chats/${payload.chatId}`,
+    process.env.PDFQA_BACKEND!.replace("/api", "") + `/invoke_chain/`,
     {
       method: "POST",
       headers: {
-        "Accept": "text/event-stream",
         Authorization: `Bearer ${authToken}`,
       },
       body: formData,
@@ -39,7 +39,6 @@ export async function POST(request: NextRequest) {
         if (done) {
           controller.close();
         } else {
-          console.log(new TextDecoder().decode(value) + "\n")
           controller.enqueue(value);
         }
       },
