@@ -27,8 +27,7 @@ export default function Chat(props: ChatProps) {
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
-    if (socket) return;
-
+    console.log("Updating socket!!")
     setSocket(
       new WebSocket(
         `${process.env.NEXT_PUBLIC_PDFQA_WEBSOCKET}/${props.chatId}`,
