@@ -28,6 +28,11 @@ export default function Chat(props: ChatProps) {
 
   useEffect(() => {
     console.log("Updating socket!!")
+
+    if (socket) {
+      socket.close();
+    }
+
     setSocket(
       new WebSocket(
         `${process.env.NEXT_PUBLIC_PDFQA_WEBSOCKET}/${props.chatId}`,
