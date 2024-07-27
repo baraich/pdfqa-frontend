@@ -2,7 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { jsonrepair } from "jsonrepair";
@@ -17,113 +17,95 @@ export default function Chat(props: ChatProps) {
   const [messages, setMessages] = useState<
     { role: "user" | "assistant"; content: string; id: string }[]
   >([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [connected, setConnected] = useState<boolean>(false);
   const [message, setMessage] = useState("");
+
+  const [assistantMessageId, setAssistantMessageId] = useState<string | null>(
+    null,
+  );
+  const [socket, setSocket] = useState<WebSocket | null>(null);
+
+  useEffect(() => {
+    if (socket) return;
+
+    setSocket(
+      new WebSocket(
+        `${process.env.NEXT_PUBLIC_PDFQA_WEBSOCKET}/${props.chatId}`,
+      ),
+    );
+  }, []);
+
+  const onMessage = useCallback(
+    (data: string) => {
+      setLoading(false);
+
+      if (!assistantMessageId) return;
+      if (!messagesContainerRef.current) return;
+
+      setMessages((messages) =>
+        messages.map((message) => {
+          if (message.id === assistantMessageId) {
+            return { ...message, content: message.content + data };
+          }
+
+          return message;
+        }),
+      );
+
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    },
+    [messagesContainerRef, assistantMessageId],
+  );
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.onopen = function () {
+      setLoading(false);
+      setConnected(true);
+    };
+
+    socket.onmessage = ({ data }) => onMessage(data);
+
+    return () => {
+      // Clean up the event listeners when the component unmounts
+      socket.onopen = null;
+      socket.onmessage = null;
+    };
+  }, [socket, onMessage]);
 
   const sendMessage = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
 
-    try {
-      let _message = message;
-      setMessage("");
+    if (socket) {
+      let assistantMessageId = v4();
+      setAssistantMessageId(assistantMessageId);
 
       setMessages((messages) => [
         ...messages,
         {
           id: v4(),
           role: "user",
-          content: _message,
+          content: message,
         },
-      ]);
-
-      if (messagesContainerRef.current != null) {
-        messagesContainerRef.current.scrollTo({
-          top: messagesContainerRef.current.scrollHeight,
-          behavior: "smooth",
-        });
-      }
-
-      const request = await fetch("/api/message", {
-        method: "POST",
-        cache: "no-cache",
-        body: JSON.stringify({
-          message: _message,
-          chatId: props.chatId,
-        }),
-      });
-
-      if (!request.body) {
-        setLoading(false);
-        toast.error(
-          "Error occurred while loading the message, try again later!",
-        );
-        return;
-      }
-
-      const reader = request.body.getReader();
-      const messageId = v4();
-
-      const decode = new TextDecoder();
-      setMessages((messages) => [
-        ...messages,
         {
-          content: "",
-          id: messageId,
+          id: assistantMessageId,
           role: "assistant",
+          content: "",
         },
       ]);
 
-      while (true) {
-        const { done, value } = await reader.read();
-
-        if (done) {
-          setLoading(false);
-          if (messagesContainerRef.current != null) {
-            messagesContainerRef.current.scrollTo({
-              top: messagesContainerRef.current.scrollHeight,
-              behavior: "smooth",
-            });
-          }
-
-          break;
-        } else {
-          if (messagesContainerRef.current != null) {
-            messagesContainerRef.current.scrollTo({
-              top: messagesContainerRef.current.scrollHeight,
-              behavior: "smooth",
-            });
-          }
-
-          const currentMessageContent = messages.find(
-            (message) => message.id === messageId,
-          );
-          const nextMessageContent =
-            (currentMessageContent || "") + decode.decode(value);
-
-          setMessages((messages) =>
-            messages.map((message) => {
-              if (message.id === messageId) {
-                message.content = nextMessageContent;
-              }
-
-              return message;
-            }),
-          );
-        }
-      }
-    } catch (error) {
-      setMessages((messages) => messages.slice(0, messages.length - 1));
-
-      setLoading(false);
-      console.log(error);
-
-      toast.error(
-        "An error occurred while sending the message, please try again later!.",
-        {
-          richColors: true,
-        },
-      );
+      socket.send(message);
+      setMessage("");
+    } else {
+      toast.error("An error occurred, please try again later!", {
+        richColors: true,
+      });
     }
   };
 
@@ -135,17 +117,19 @@ export default function Chat(props: ChatProps) {
         className={"p-4 flex flex-col gap-4 overflow-auto"}
         ref={messagesContainerRef}
       >
-        {messages.map((message, idx) => (
-          <div
-            key={idx}
-            className={cn("p-4 max-w-[70%] rounded", {
-              "self-end bg-orange-300": message.role === "user",
-              "bg-stone-200 self-start": message.role === "assistant",
-            })}
-          >
-            {message.content}
-          </div>
-        ))}
+        {messages
+          .filter((message) => !!message.content)
+          .map((message, idx) => (
+            <div
+              key={idx}
+              className={cn("p-4 max-w-[70%] rounded", {
+                "self-end bg-orange-300": message.role === "user",
+                "bg-stone-200 self-start": message.role === "assistant",
+              })}
+            >
+              {message.content}
+            </div>
+          ))}
       </div>
 
       <div className={"p-4 border-t"}>
@@ -160,7 +144,7 @@ export default function Chat(props: ChatProps) {
             placeholder={"Enter your question..."}
             onChange={(event) => setMessage(event.target.value)}
           />
-          <Button variant={"default"} disabled={loading}>
+          <Button variant={"default"} disabled={loading || !connected}>
             {loading ? (
               <Loader2 className={"animate-spin size-4 text-white"} />
             ) : (
