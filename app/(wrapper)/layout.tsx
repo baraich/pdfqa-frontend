@@ -6,6 +6,7 @@ import axios from "axios";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MessageSquarePlus } from "lucide-react";
+import Sidebar from "@/components/Sidebar";
 
 interface ChatWrapperProps {
   children: ReactNode;
@@ -33,39 +34,9 @@ export default async function ChatWrapperLayout(props: ChatWrapperProps) {
 
   return (
     <div
-      className={"grid grid-cols-[300px_1fr] w-screen h-screen overflow-hidden"}
+      className={"grid grid-cols-[auto_1fr] w-screen h-screen overflow-hidden"}
     >
-      <div className={"bg-stone-800 p-4 pt-8"}>
-        <div className={"w-full flex items-center justify-between"}>
-          <h2
-            className={
-              "text-white font-bold pb-2 text-2xl border-b-2 border-dashed"
-            }
-            style={{ borderColor: "#FFFFFF50" }}
-          >
-            Chats
-          </h2>
-
-          <Link href={"/"}>
-            <Button className={"bg-orange-300 hover:bg-orange-200"}>
-              <MessageSquarePlus className={"size-4 text-black"} />
-            </Button>
-          </Link>
-        </div>
-
-        <div className={"h-full py-8 flex gap-2 flex-col w-full"}>
-          {chats.map((chat) => (
-            <div
-              data-chat-id={chat.id}
-              suppressHydrationWarning={true}
-              className={"p-4 truncate w-full bg-orange-300 rounded"}
-              key={chat.id}
-            >
-              <a href={`/chats/${chat.id}`}>{chat.pdf_name}</a>
-            </div>
-          ))}
-        </div>
-      </div>
+      <Sidebar chats={chats} />
       <div className={"grid place-items-center bg-gray-100"}>
         {props.children}
       </div>
