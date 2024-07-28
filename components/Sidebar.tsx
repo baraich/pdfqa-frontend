@@ -4,13 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Cross, Menu, MessageSquarePlus, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 type SidebarProps = {
   chats: { id: number; pdf_url: string; pdf_name: string }[];
 };
 
 export default function Sidebar({ chats }: SidebarProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+
+  const [sidebarOpen, setSidebarOpen] = useState(
+    pathname === "/chats" || pathname === "/chats/",
+  );
 
   const openMenu = () => {
     setSidebarOpen(true);
@@ -30,7 +35,7 @@ export default function Sidebar({ chats }: SidebarProps) {
       <div
         className={cn(
           "bg-stone-800 p-4 pt-8 h-full md:relative absolute md:top-auto md:left-auto md:bottom-auto top-0 bottom-0 right-0 w-full z-50 md:max-w-[300px] md:w-[300px]",
-          sidebarOpen ? "left-0" : "-left-full"
+          sidebarOpen ? "left-0" : "-left-full",
         )}
       >
         <div className={"w-full flex items-center justify-between"}>

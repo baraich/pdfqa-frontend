@@ -149,7 +149,7 @@ export default function Chat(props: ChatProps) {
 
   return (
     <div
-      className={"max-h-screen h-full grid grid-rows-[1fr_auto] grid-cols-1"}
+      className={"max-h-screen overflow-hidden h-full grid grid-rows-[1fr_auto] grid-cols-1"}
     >
       <div
         className={"p-4 flex flex-col-reverse gap-4 break-words overflow-auto"}
