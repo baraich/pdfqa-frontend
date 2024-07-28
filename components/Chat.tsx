@@ -95,6 +95,12 @@ export default function Chat(props: ChatProps) {
       setConnected(true);
     };
 
+    socket.onclose = function () {
+      toast.error("You have been disconnected, refresh the page or try again later!", {
+        richColors: true
+      });
+    }
+
     socket.onmessage = ({ data }) => onMessage(data);
 
     return () => {
