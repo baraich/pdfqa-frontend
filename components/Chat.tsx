@@ -96,12 +96,6 @@ export default function Chat(props: ChatProps) {
     };
 
     socket.onmessage = ({ data }) => onMessage(data);
-
-    return () => {
-      // Clean up the event listeners when the component unmounts
-      socket.onopen = null;
-      socket.onmessage = null;
-    };
   }, [socket, onMessage]);
 
   const sendMessage = async (event: FormEvent<HTMLFormElement>) => {
