@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { jsonrepair } from "jsonrepair";
 import { v4 } from "uuid";
 import axios from "axios";
+import renderLinks from "@/lib/renderLinks";
 
 type ChatProps = {
   chatId: string;
@@ -72,17 +72,12 @@ export default function Chat(props: ChatProps) {
       setMessages((messages) =>
         messages.map((message) => {
           if (message.id === assistantMessageId) {
-            return { ...message, content: message.message + data };
+            return { ...message, message: message.message + data };
           }
 
           return message;
         }),
       );
-
-      messagesContainerRef.current.scrollTo({
-        top: messagesContainerRef.current.scrollHeight,
-        behavior: "smooth",
-      });
     },
     [messagesContainerRef, assistantMessageId],
   );
@@ -96,10 +91,13 @@ export default function Chat(props: ChatProps) {
     };
 
     socket.onclose = function () {
-      toast.error("You have been disconnected, refresh the page or try again later!", {
-        richColors: true
-      });
-    }
+      toast.error(
+        "You have been disconnected, refresh the page or try again later!",
+        {
+          richColors: true,
+        },
+      );
+    };
 
     socket.onmessage = ({ data }) => onMessage(data);
 
@@ -140,15 +138,25 @@ export default function Chat(props: ChatProps) {
     }
   };
 
+  useEffect(() => {
+    if (messagesContainerRef.current == null) return;
+
+    messagesContainerRef.current.scrollTo({
+      top: messagesContainerRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messagesContainerRef, messages, initialMessages]);
+
   return (
     <div
       className={"max-h-screen h-screen grid grid-rows-[1fr_auto] grid-cols-1"}
     >
       <div
-        className={"p-4 flex flex-col gap-4 overflow-auto"}
+        className={"p-4 flex flex-col-reverse gap-4 break-words overflow-auto"}
         ref={messagesContainerRef}
       >
         {[...initialMessages, ...messages]
+          .reverse()
           .filter((message) => !!message.message)
           .map((message, idx) => (
             <div
@@ -158,7 +166,15 @@ export default function Chat(props: ChatProps) {
                 "bg-stone-200 self-start": message.role === "assistant",
               })}
             >
-              {message.message}
+              {renderLinks(message.message)
+                .filter((block) => !!block)
+                .map((block, idx) =>
+                  block.type === "link" ? (
+                    <a className={"text-black underline"} href={block.content as string}>{block.content}</a>
+                  ) : (
+                    block.content
+                  ),
+                )}
             </div>
           ))}
       </div>
