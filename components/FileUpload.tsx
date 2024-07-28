@@ -4,7 +4,7 @@ import { useDropzone } from "react-dropzone";
 import { FileUp } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function FileUpload() {
   const router = useRouter();
@@ -15,7 +15,10 @@ export default function FileUpload() {
 
       reader.onloadend = (evt) => {
         if (evt.target?.readyState === FileReader.DONE) {
-          const arr = new Uint8Array(evt.target.result as ArrayBuffer).subarray(0, 4);
+          const arr = new Uint8Array(evt.target.result as ArrayBuffer).subarray(
+            0,
+            4,
+          );
           let header = "";
           arr.forEach((byte) => {
             header += byte.toString(16);
@@ -31,7 +34,7 @@ export default function FileUpload() {
       };
 
       reader.onerror = () => {
-        reject(new Error('Error reading file'));
+        reject(new Error("Error reading file"));
       };
 
       // Read first 4 bytes
@@ -47,13 +50,13 @@ export default function FileUpload() {
 
       if (!(await isPDF(file))) {
         return toast.warning("Only PDF files are supported!", {
-          richColors: true
+          richColors: true,
         });
       }
 
       if (file.size > 10 * 1024 * 1024) {
         return toast.error("Cannot upload a file greater than 10MB!", {
-          richColors: true
+          richColors: true,
         });
       }
 
@@ -82,25 +85,32 @@ export default function FileUpload() {
           "Content-Type": "multipart/form-data",
         },
         onUploadProgress: (event) => {
-          toast.info(`Uploading (${event.loaded * 100 / event.total!}%)`)
+          toast.info(`Uploading (${(event.loaded * 100) / event.total!}%)`);
         },
       });
 
-      axios.post("/api/create-chat", {
-        pdfName: file.name,
-        fileKey: signedUrlResponse.fileKey,
-        pdfUrl: new URL(signedUrlResponse.signedUrl).origin + "/" + signedUrlResponse.fileKey
-      }).then((response) => {
-        if (response.data.status === "OK") {
-          toast.info("File uploaded successfully!");
+      axios
+        .post("/api/create-chat", {
+          pdfName: file.name,
+          fileKey: signedUrlResponse.fileKey,
+          pdfUrl:
+            new URL(signedUrlResponse.signedUrl).origin +
+            "/" +
+            signedUrlResponse.fileKey,
+        })
+        .then((response) => {
+          if (response.data.status === "OK") {
+            toast.info("File uploaded successfully!");
 
-          router.push("/chats/" + response.data.chatId);
-        } else {
-          toast.warning("An error has occurred, please try again later!", {
-            richColors: true
-          });
-        }
-      });
+            global.window != undefined &&
+              (global.window.location.pathname =
+                "/chats/" + response.data.chatId);
+          } else {
+            toast.warning("An error has occurred, please try again later!", {
+              richColors: true,
+            });
+          }
+        });
     },
   });
 
