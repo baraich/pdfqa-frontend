@@ -170,9 +170,9 @@ export default function Chat(props: ChatProps) {
                 .filter((block) => !!block)
                 .map((block, idx) =>
                   block.type === "link" ? (
-                    <a className={"text-black underline"} href={block.content as string}>{block.content}</a>
+                    <a key={idx} className={"text-black underline"} href={block.content as string}>{block.content}</a>
                   ) : (
-                    block.content
+                    <span key={idx}>{block.content}</span>
                   ),
                 )}
             </div>
