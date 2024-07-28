@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { jsonrepair } from "jsonrepair";
 import { v4 } from "uuid";
+import axios from "axios";
 
 type ChatProps = {
   chatId: string;
@@ -15,11 +16,12 @@ type ChatProps = {
 export default function Chat(props: ChatProps) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<
-    { role: "user" | "assistant"; content: string; id: string }[]
+    { role: "user" | "assistant"; message: string; id: string }[]
   >([]);
   const [loading, setLoading] = useState(true);
   const [connected, setConnected] = useState<boolean>(false);
   const [message, setMessage] = useState("");
+  const [initialMessages, setInitialMessages] = useState<typeof messages>([]);
 
   const [assistantMessageId, setAssistantMessageId] = useState<string | null>(
     null,
@@ -27,12 +29,32 @@ export default function Chat(props: ChatProps) {
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
-    console.log("Updating socket!!")
+    try {
+      const messages = axios.post(`/api/messages`, {
+        chatId: props.chatId,
+      });
 
-    if (socket) {
-      socket.close();
+      messages.then(({ data }) =>
+        Array.isArray(data)
+          ? setInitialMessages(data)
+          : toast.error(
+              "An occurred while fetching previous messages, please try again later!",
+              {
+                richColors: true,
+              },
+            ),
+      );
+    } catch (error) {
+      toast.error(
+        "An error occurred while fetching previous messages from the server.",
+        {
+          richColors: true,
+        },
+      );
     }
+  }, []);
 
+  useEffect(() => {
     setSocket(
       new WebSocket(
         `${process.env.NEXT_PUBLIC_PDFQA_WEBSOCKET}/${props.chatId}`,
@@ -50,7 +72,7 @@ export default function Chat(props: ChatProps) {
       setMessages((messages) =>
         messages.map((message) => {
           if (message.id === assistantMessageId) {
-            return { ...message, content: message.content + data };
+            return { ...message, content: message.message + data };
           }
 
           return message;
@@ -95,12 +117,12 @@ export default function Chat(props: ChatProps) {
         {
           id: v4(),
           role: "user",
-          content: message,
+          message: message,
         },
         {
           id: assistantMessageId,
           role: "assistant",
-          content: "",
+          message: "",
         },
       ]);
 
@@ -121,8 +143,8 @@ export default function Chat(props: ChatProps) {
         className={"p-4 flex flex-col gap-4 overflow-auto"}
         ref={messagesContainerRef}
       >
-        {messages
-          .filter((message) => !!message.content)
+        {[...initialMessages, ...messages]
+          .filter((message) => !!message.message)
           .map((message, idx) => (
             <div
               key={idx}
@@ -131,7 +153,7 @@ export default function Chat(props: ChatProps) {
                 "bg-stone-200 self-start": message.role === "assistant",
               })}
             >
-              {message.content}
+              {message.message}
             </div>
           ))}
       </div>

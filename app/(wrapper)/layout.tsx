@@ -61,7 +61,7 @@ export default async function ChatWrapperLayout(props: ChatWrapperProps) {
               className={"p-4 truncate w-full bg-orange-300 rounded"}
               key={chat.id}
             >
-              <Link href={`/chats/${chat.id}`}>{chat.pdf_name}</Link>
+              <a href={`/chats/${chat.id}`}>{chat.pdf_name}</a>
             </div>
           ))}
         </div>
